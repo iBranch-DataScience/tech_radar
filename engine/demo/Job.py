@@ -5,7 +5,8 @@ from org.ibranch.engine.job.Base import BaseJob
 
 
 from domain.Entity import Action
-from engine.Task import *
+from engine.BaseTask import *
+from engine.demo.Task import OpenIBranchLinkedInTask
 
 
 class PresentationJob(BaseJob):
@@ -37,5 +38,5 @@ class PresentationJob(BaseJob):
         task = OpenIBranchLinkedInTask(act)
 
         from org.ibranch.scheduler.executor.TaskExecutor import ThreadExecutor as TaskExecutor
-        TaskExecutor().submit_tasks(CONSTANT.presentation(), [task])
+        TaskExecutor().submit_tasks(self.cache_name, [task])
         self._logger.info(f"任务已启动. ")
