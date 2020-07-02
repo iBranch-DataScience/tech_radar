@@ -1,9 +1,9 @@
 import logging
 from queue import Queue
 
-from org.ibranch.domain.System import CONSTANT, Cache
-from org.ibranch.engine.job.Base import BaseJob
-from org.ibranch.util.DataTraffic import FlowShaper
+from scraping_scheduler.ibranch.domain.System import CONSTANT, Cache
+from scraping_scheduler.ibranch.engine.job.Base import BaseJob
+from scraping_scheduler.ibranch.util.DataTraffic import FlowShaper
 
 from engine.sample.Task import JsonSerializeTask
 
@@ -25,11 +25,13 @@ class SampleJob(BaseJob):
         self._logger.info("<<<iBranch 技术雷达 presents>>>")
 
         flow_shaper = FlowShaper().get(self.cache_name)
+
         if flow_shaper.acquire():
             task = JsonSerializeTask()
+
             task.register_post_exec(lambda: FlowShaper().get(self.cache_name).release())
 
-            from org.ibranch.scheduler.executor.TaskExecutor import ThreadExecutor as TaskExecutor
+            from scraping_scheduler.ibranch.scheduler.executor.TaskExecutor import ThreadExecutor as TaskExecutor
             TaskExecutor().submit_tasks(self.cache_name, [task])
             self._logger.info(f"任务已启动. ")
         else:
