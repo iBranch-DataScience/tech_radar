@@ -7,10 +7,10 @@ logger:
 
 schedule:
   presentation:
-    type: one-off
+     type: one-off
 #  presentation:
 #    type: sec
-#    sec: 10
+#    sec: 5
 #  presentation:
 #    type: cron
 #    cron: "19,39,59 * * * *"
