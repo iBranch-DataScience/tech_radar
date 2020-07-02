@@ -1,8 +1,8 @@
 import logging
 import time
 
-from scraping_scheduler.ibranch.engine.client.SeleniumClient import SeleniumClientBuilder
-from scraping_scheduler.ibranch.util.DataTraffic import FlowShaper
+from ibranch.scraping_scheduler.engine.client.SeleniumClient import SeleniumClientBuilder
+from ibranch.scraping_scheduler.util.DataTraffic import FlowShaper
 
 
 class Task:

@@ -1,4 +1,4 @@
-from scraping_scheduler.ibranch.domain.Profile import Domain
+from ibranch.scraping_scheduler.domain.Profile import Domain
 
 
 class Action(Domain):
