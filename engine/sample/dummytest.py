@@ -5,9 +5,9 @@ import requests
 import pandas as pd
 
 from api.Client import Request, Response, ScrapingStrategy, Client
-from scraping_scheduler.ibranch.engine.client import RequestsClient
-from scraping_scheduler.ibranch.domain.System import CONSTANT, Cache
-from scraping_scheduler.ibranch.engine.job.Base import BaseJob
+from ibranch.scraping_scheduler.engine.client import RequestsClient
+from ibranch.scraping_scheduler.domain.System import CONSTANT, Cache
+from ibranch.scraping_scheduler.engine.job.Base import BaseJob
 
 
 class APIRequest(Request):
