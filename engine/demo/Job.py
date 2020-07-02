@@ -1,8 +1,7 @@
 from queue import Queue
 
-from org.ibranch.domain.System import CONSTANT, Cache
-from org.ibranch.engine.job.Base import BaseJob
-
+from scraping_scheduler.ibranch.domain.System import CONSTANT, Cache
+from scraping_scheduler.ibranch.engine.job.Base import BaseJob
 
 from domain.Entity import Action
 from engine.BaseTask import *
@@ -37,6 +36,6 @@ class PresentationJob(BaseJob):
 
         task = OpenIBranchLinkedInTask(act)
 
-        from org.ibranch.scheduler.executor.TaskExecutor import ThreadExecutor as TaskExecutor
+        from scraping_scheduler.ibranch.scheduler.executor.TaskExecutor import ThreadExecutor as TaskExecutor
         TaskExecutor().submit_tasks(self.cache_name, [task])
         self._logger.info(f"任务已启动. ")

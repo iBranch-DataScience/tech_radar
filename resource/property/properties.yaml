@@ -15,13 +15,13 @@ schedule:
 #    type: cron
 #    cron: "19,39,59 * * * *"
   jobs:
-    package: engine.sample
+    package: engine.demo
     module: Job
     list:
-      - SampleJob
+      - PresentationJob
 
 thread_pool:
-  sample:
+  presentation:
     size: 10
 
 client:
