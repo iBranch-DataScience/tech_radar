@@ -3,10 +3,18 @@ import logging
 from abc import ABC, abstractmethod
 
 
-class Serializable:
-
+class Serializable(ABC):
     def to_json(self):
-        attributes = self.__dict__
+        raise NotImplementedError()
+
+
+class JsonSerializable(Serializable):
+    def __init__(self):
+        super(JsonSerializable, self).__init__()
+        Serializable.register(JsonSerializable)
+
+    def to_json(self, obj: object):
+        attributes = obj.__dict__
         self._convert_key(attributes)
         return json.dumps(attributes)
 
@@ -20,12 +28,17 @@ class Serializable:
                 self._convert_key(attributes[k])
 
 
-class Request(ABC, Serializable):
+class Deserializable(ABC):
+    def from_json(self, json_obj):
+        raise NotImplementedError()
+
+
+class Request(ABC):
     def __init__(self):
         pass
 
 
-class Response(ABC, Serializable):
+class Response(ABC):
     def __init__(self):
         pass
 
@@ -34,11 +47,8 @@ class ScrapingStrategy(ABC):
     def __init__(self):
         self._logger = logging.getLogger(type(self).__name__)
 
-    def scrape(self, request):
-        return self.get_data(request)
-
     @abstractmethod
-    def get_data(self, request: Request) -> Response:
+    def scrape(self, request: Request) -> Response:
         raise NotImplementedError()
 
 

@@ -1,31 +1,33 @@
 logger:
   level: INFO
 
-#driver_path:
-#  chrome: ./resource/driver/mac
-#  chrome: ./resource/driver/ubuntu
-
-schedule:
-  presentation:
-     type: one-off
-#  presentation:
-#    type: sec
-#    sec: 5
-#  presentation:
-#    type: cron
-#    cron: "19,39,59 * * * *"
-  jobs:
-    package: engine.demo
-    module: Job
-    list:
-      - PresentationJob
-
-thread_pool:
-  presentation:
-    size: 10
-
 client:
   requests:
     timeout: 6 # in second
   selenium:
     timeout: 60 # in second
+
+schedule:
+#  presentation:
+#     type: one-off
+  usajob:
+    type: sec
+    sec: 10
+  githubjob:
+    type: sec
+    sec: 5
+#  presentation:
+#    type: cron
+#    cron: "19,39,59 * * * *"
+  jobs:
+    package: engine.job_portal
+    module: Job
+    list:
+      - USAJobJob
+#      - GitHubJobJob
+
+thread_pool:
+  usajob:
+    size: 10
+  githubjob:
+    size: 10

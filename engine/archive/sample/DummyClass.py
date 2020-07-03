@@ -58,7 +58,7 @@ class DummyScrapingStrategy(ScrapingStrategy):
         self._language = None
         self._level = None
 
-    def get_data(self, request: Request) -> Response:
+    def scrape(self, request: Request) -> Response:
         response = DummyResponse()
         response.language = 'Python3'
         response.level = 5

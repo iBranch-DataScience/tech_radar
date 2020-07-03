@@ -187,7 +187,7 @@ class APIScrapingStrategy(ScrapingStrategy):
         self._language = None
         self._level = None
 
-    def get_data(self, request: APIRequest) -> Response:
+    def scrape(self, request: APIRequest) -> Response:
         """
         :APIName type String ("USAJob" or "GithubJobs)
         :return pandas DataFrame
