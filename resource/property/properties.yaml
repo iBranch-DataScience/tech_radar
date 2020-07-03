@@ -15,13 +15,15 @@ jobs:
   package: engine.job
   module: Job
   list:
-    - USAJob:
+    USAJob:
         type: one-off
-    - GitHubJob:
+        user_agent: rj_jnu@outlook.com
+        auth_key: 2Gkkyrddz2Skk1czvO03iqRzUmPBqB6WCaTXUV1O/pc=
+    GitHubJob:
         type: sec
         sec: 10
         pool_size: 10
-#    - ThirdJob:
+#   ThirdJob:
 #        type: cron
 #        cron: "19,39,59 * * * *"
 #        pool_size: 10

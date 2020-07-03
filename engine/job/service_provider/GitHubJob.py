@@ -1,7 +1,7 @@
 import logging
 
 import pandas as pd
-import requests
+from ibranch.scraping_scheduler.engine.client.HttpClient import ClientFactory
 from ibranch.scraping_scheduler.util.Toolbox import LogicUtil
 
 from api.Client import Request, Response, ScrapingStrategy, Deserializable
@@ -99,22 +99,21 @@ class GitHubJobScrapingStrategy(ScrapingStrategy, GithubJobDeserializable):
     def __init__(self):
         super(GitHubJobScrapingStrategy, self).__init__()
         ScrapingStrategy.register(GitHubJobScrapingStrategy)
-        self._language = None
-        self._level = None
+        self._http_client = ClientFactory().build()
 
     def scrape(self, request: GitHubJobRequest) -> GitHubJobResponse:
         api = self._build_api_url(request)
         try:
-            res = requests.get(api)
-            if None is res:
+            res = self._http_client.get(url=api)
+            if None is res.response:
                 self._logger.info("GitHubJob 访问异常. 返回值为空")
                 return None
-            if res.status_code != 200:
+            if not res.is_success():
                 self._logger.info("GitHubJob 访问异常. HTTP 状态码: %s" % res.status_code)
                 return None
             self._logger.info("GitHubJob 访问成功")
 
-            raw_json = res.json()
+            raw_json = res.json
             records = self.from_json(raw_json)
             return GitHubJobResponse(raw_json, records)
         except Exception as e:

@@ -1,7 +1,8 @@
 import logging
 
 import pandas as pd
-import requests
+from ibranch.scraping_scheduler.configuration.Configurator import Configuration
+from ibranch.scraping_scheduler.engine.client.HttpClient import ClientFactory
 from ibranch.scraping_scheduler.util.Toolbox import LogicUtil
 
 from api.Client import Request, Response, ScrapingStrategy, Deserializable
@@ -14,8 +15,8 @@ class USAJobRequest(Request):
         # Read only fields
         self._url = 'https://data.usajobs.gov/api/search'
         self._host = 'data.usajobs.gov'
-        self._user_agent = 'rj_jnu@outlook.com'
-        self._auth_key = '2Gkkyrddz2Skk1czvO03iqRzUmPBqB6WCaTXUV1O/pc='
+        self._user_agent = Configuration().getProperty(f'jobs.list.USAJob.user_agent')
+        self._auth_key = Configuration().getProperty(f'jobs.list.USAJob.auth_key')
 
         # Dynamic fields
         self._job_category_code = None
@@ -143,21 +144,23 @@ class USAJobScrapingStrategy(ScrapingStrategy, USAJobDeserializable):
         self._logger = logging.getLogger(type(self).__name__)
         super(USAJobScrapingStrategy, self).__init__()
         ScrapingStrategy.register(USAJobScrapingStrategy)
+        self._http_client = ClientFactory().build()
 
     def scrape(self, request: USAJobRequest) -> USAJobResponse:
         api = self._build_api_url(request)
-        header = self._build_header(request)
+        headers = self._build_headers(request)
         try:
-            res = requests.get(api, headers=header)
-            if None is res:
+            res = self._http_client.get(url=api, headers=headers)
+
+            if None is res.response:
                 self._logger.info("USAJob 访问异常. 返回值为空")
                 return None
-            if res.status_code != 200:
+            if not res.is_success():
                 self._logger.info("USAJob 访问异常. HTTP 状态码: %s" % res.status_code)
                 return None
             self._logger.info("USAJob 访问成功")
 
-            raw_json = res.json()
+            raw_json = res.json
             # Note: The number of results returned per request defaults to 25
             # but can be defined in your request up to 500 per request.
             page_num = int(raw_json['SearchResult']['UserArea']['NumberOfPages'])
@@ -175,7 +178,7 @@ class USAJobScrapingStrategy(ScrapingStrategy, USAJobDeserializable):
                f"&ResultsPerPage={if_else(request.results_per_page)}" \
                f"&Page={if_else(request.page_num)}"
 
-    def _build_header(self, request: USAJobRequest) -> dict:
+    def _build_headers(self, request: USAJobRequest) -> dict:
         header = dict()
         header["Host"] = request.host
         header["User-Agent"] = request.user_agent

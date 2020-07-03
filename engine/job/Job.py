@@ -27,7 +27,7 @@ class USAJob(BaseJob):
             task.register_post_exec(lambda: FlowShaper().get(self.cache_name).release())
 
             from ibranch.scraping_scheduler.scheduler.executor.TaskExecutor import ThreadExecutor as TaskExecutor
-            TaskExecutor().submit_tasks(self.__class__.__name__, [task])
+            TaskExecutor().submit_tasks(type(self).__name__, [task])
             self._logger.info(f"任务已启动. ")
         else:
             self._logger.info(f"任务启动失败. ")
@@ -51,7 +51,7 @@ class GitHubJob(BaseJob):
             task.register_post_exec(lambda: FlowShaper().get(self.cache_name).release())
 
             from ibranch.scraping_scheduler.scheduler.executor.TaskExecutor import ThreadExecutor as TaskExecutor
-            TaskExecutor().submit_tasks(self.__class__.__name__, [task])
+            TaskExecutor().submit_tasks(type(self).__name__, [task])
             self._logger.info(f"任务已启动. ")
         else:
             self._logger.info(f"任务启动失败. ")
