@@ -7,27 +7,21 @@ client:
   selenium:
     timeout: 60 # in second
 
-schedule:
-#  presentation:
-#     type: one-off
-  usajob:
-    type: sec
-    sec: 10
-  githubjob:
-    type: sec
-    sec: 5
-#  presentation:
-#    type: cron
-#    cron: "19,39,59 * * * *"
-  jobs:
-    package: engine.job_portal
-    module: Job
-    list:
-      - USAJobJob
-#      - GitHubJobJob
+traffic_limit:
+  global_throttle:
+    size: 20
 
-thread_pool:
-  usajob:
-    size: 10
-  githubjob:
-    size: 10
+jobs:
+  package: engine.job_portal
+  module: Job
+  list:
+    - USAJob:
+        type: one-off
+    - GitHubJob:
+        type: sec
+        sec: 10
+        pool_size: 10
+#    - ThirdJob:
+#        type: cron
+#        cron: "19,39,59 * * * *"
+#        pool_size: 10

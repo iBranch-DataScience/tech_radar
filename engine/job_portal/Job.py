@@ -9,10 +9,10 @@ from engine.job_portal.Task import USAJobTask, GitHubJobTask
 from util.Toolbox import CONSTANT
 
 
-class USAJobJob(BaseJob):
+class USAJob(BaseJob):
     def __init__(self):
-        super(USAJobJob, self).__init__(CONSTANT.usajob())
-        BaseJob.register(USAJobJob)
+        super(USAJob, self).__init__(CONSTANT.global_throttle())
+        BaseJob.register(USAJob)
         self._logger = logging.getLogger(type(self).__name__)
         cache_catelog = Cache().get_new_cache(Queue)
         Cache().register_catelog(self.cache_name, cache_catelog)
@@ -31,16 +31,16 @@ class USAJobJob(BaseJob):
             task.register_post_exec(lambda: FlowShaper().get(self.cache_name).release())
 
             from ibranch.scraping_scheduler.scheduler.executor.TaskExecutor import ThreadExecutor as TaskExecutor
-            TaskExecutor().submit_tasks(self.cache_name, [task])
+            TaskExecutor().submit_tasks(self.__class__.__name__, [task])
             self._logger.info(f"任务已启动. ")
         else:
             self._logger.info(f"任务启动失败. ")
 
 
-class GitHubJobJob(BaseJob):
+class GitHubJob(BaseJob):
     def __init__(self):
-        super(GitHubJobJob, self).__init__(CONSTANT.githubjob())
-        BaseJob.register(GitHubJobJob)
+        super(GitHubJob, self).__init__(CONSTANT.global_throttle())
+        BaseJob.register(GitHubJob)
         self._logger = logging.getLogger(type(self).__name__)
         cache_catelog = Cache().get_new_cache(Queue)
         Cache().register_catelog(self.cache_name, cache_catelog)
@@ -59,7 +59,7 @@ class GitHubJobJob(BaseJob):
             task.register_post_exec(lambda: FlowShaper().get(self.cache_name).release())
 
             from ibranch.scraping_scheduler.scheduler.executor.TaskExecutor import ThreadExecutor as TaskExecutor
-            TaskExecutor().submit_tasks(self.cache_name, [task])
+            TaskExecutor().submit_tasks(self.__class__.__name__, [task])
             self._logger.info(f"任务已启动. ")
         else:
             self._logger.info(f"任务启动失败. ")

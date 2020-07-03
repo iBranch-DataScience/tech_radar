@@ -4,9 +4,5 @@ from ibranch.scraping_scheduler.domain.System import CONSTANT as BaseConstant
 class CONSTANT(BaseConstant):
 
     @staticmethod
-    def usajob():
-        return "usajob"
-
-    @staticmethod
-    def githubjob():
-        return "githubjob"
+    def global_throttle():
+        return "global_throttle"
