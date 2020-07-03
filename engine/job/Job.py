@@ -5,7 +5,7 @@ from ibranch.scraping_scheduler.domain.System import Cache
 from ibranch.scraping_scheduler.engine.job.Base import BaseJob
 from ibranch.scraping_scheduler.util.DataTraffic import FlowShaper
 
-from engine.job_portal.Task import USAJobTask, GitHubJobTask
+from engine.job.Task import USAJobTask, GitHubJobTask
 from util.Toolbox import CONSTANT
 
 
@@ -16,10 +16,6 @@ class USAJob(BaseJob):
         self._logger = logging.getLogger(type(self).__name__)
         cache_catelog = Cache().get_new_cache(Queue)
         Cache().register_catelog(self.cache_name, cache_catelog)
-
-    @property
-    def job_class(self):
-        return "usajob"
 
     # Run under interval
     def run(self):
@@ -44,10 +40,6 @@ class GitHubJob(BaseJob):
         self._logger = logging.getLogger(type(self).__name__)
         cache_catelog = Cache().get_new_cache(Queue)
         Cache().register_catelog(self.cache_name, cache_catelog)
-
-    @property
-    def job_class(self):
-        return "githubjob"
 
     # Run under interval
     def run(self):

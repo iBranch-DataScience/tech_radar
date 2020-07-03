@@ -12,7 +12,7 @@ traffic_limit:
     size: 20
 
 jobs:
-  package: engine.job_portal
+  package: engine.job
   module: Job
   list:
     - USAJob:

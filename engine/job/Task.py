@@ -1,8 +1,8 @@
 from api.Client import Client
 from engine.BaseTask import Task
-from engine.job_portal.service_provider.GitHubJob import GitHubJobScrapingStrategy, GitHubJobRequest
+from engine.job.service_provider.GitHubJob import GitHubJobScrapingStrategy, GitHubJobRequest
 
-from engine.job_portal.service_provider.USAJob import USAJobScrapingStrategy, USAJobRequest
+from engine.job.service_provider.USAJob import USAJobScrapingStrategy, USAJobRequest
 
 
 class USAJobTask(Task):
