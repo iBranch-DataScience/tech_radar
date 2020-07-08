@@ -1,4 +1,5 @@
 import logging
+import time
 
 import pandas as pd
 from ibranch.scraping_scheduler.configuration.Configurator import Configuration
@@ -6,7 +7,7 @@ from ibranch.scraping_scheduler.engine.client.HttpClient import ClientFactory
 from ibranch.scraping_scheduler.util.Toolbox import LogicUtil
 
 from api.Client import Request, Response, ScrapingStrategy, Deserializable
-
+import datetime
 
 class USAJobRequest(Request):
     def __init__(self):
@@ -94,16 +95,15 @@ class USAJobDeserializable(Deserializable):
         elements = json_obj['SearchResult']['SearchResultItems']
         # list
         feature_names = {
-            'PositionTitle'
-            , 'PositionURI'
+            'PositionID'
+            , 'PositionTitle'
             , 'ApplyURI'
             , 'PositionLocation'
             , 'OrganizationName'
             , 'DepartmentName'
             , 'JobCategory'
             , 'PositionSchedule'
-            , 'PositionOfferingType'
-            , 'QualificationSummary'
+            , 'PositionRemuneration'
             , 'PublicationStartDate'
             , 'ApplicationCloseDate'
         }
@@ -112,10 +112,56 @@ class USAJobDeserializable(Deserializable):
                 key: value for key, value in element['MatchedObjectDescriptor'].items() if key in feature_names
             } for element in elements
         ]
+        how_to_apply_records = [
+            element['MatchedObjectDescriptor']['UserArea']['Details']['HowToApply']
+            for element in elements
 
+        ]
+        description_records = [
+            self._concat_description(element)
+            for element in elements
+        ]
         data_frame = pd.DataFrame(row_records)
+        data_frame['HowToApply'] = how_to_apply_records
+        data_frame['Description'] = description_records
+        data_frame['Source'] = 'USAJobs'
+        data_frame['Time'] = datetime.datetime.now()
+        data_frame = data_frame[
+            [
+                'Source'
+                , 'PositionID'
+                , 'OrganizationName'
+                , 'DepartmentName'
+                , 'PositionTitle'
+                , 'PositionRemuneration'
+                , 'PositionLocation'
+                , 'JobCategory'
+                , 'PositionSchedule'
+                , 'Description'
+                , 'HowToApply'
+                , 'ApplyURI'
+                , 'PublicationStartDate'
+                , 'ApplicationCloseDate'
+                , 'Time'
+             ]
+        ]
+
         self._logger.info('Data Frame转换成功...')
         return data_frame
+
+    def _concat_description(self, element):
+        qualification_summary = element['MatchedObjectDescriptor']['QualificationSummary']
+        inner_dict = element['MatchedObjectDescriptor']['UserArea']['Details']
+        return f"QualificationSummary:{qualification_summary}" \
+               f"MajorDuties:{inner_dict['MajorDuties']}" \
+               f"Requirements:{inner_dict['Requirements']}" \
+               f"Evaluations:{inner_dict['Evaluations']}" \
+               f"WhatToExpectNext:{inner_dict['WhatToExpectNext']}" \
+               f"RequiredDocuments:{inner_dict['RequiredDocuments']}" \
+               f"Benefits:{inner_dict['Benefits']}" \
+               f"JobSummary:{inner_dict['JobSummary']}" \
+               f"OtherInformation:{inner_dict['OtherInformation']}" \
+               f"Benefits:{inner_dict['Benefits']}"
 
 
 class USAJobResponse(Response):

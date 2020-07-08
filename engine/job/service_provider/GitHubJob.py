@@ -1,9 +1,9 @@
 import logging
-
+import datetime
 import pandas as pd
 from ibranch.scraping_scheduler.engine.client.HttpClient import ClientFactory
 from ibranch.scraping_scheduler.util.Toolbox import LogicUtil
-
+import numpy as np
 from api.Client import Request, Response, ScrapingStrategy, Deserializable
 
 
@@ -75,6 +75,46 @@ class GithubJobDeserializable(Deserializable):
     def from_json(self, json_obj) -> pd.DataFrame:
         self._logger.info('json文件转换Data Frame中...')
         data_frame = pd.DataFrame(json_obj, index=range(len(json_obj)))
+        data_frame['Source'] = 'GithubJobs'
+        data_frame['Time'] = datetime.datetime.now()
+        for column_name in ['DepartmentName', 'PositionRemuneration', 'JobCategory', 'ApplicationCloseDate']:
+            data_frame[column_name] = np.nan
+        data_frame = data_frame[
+            [
+                'Source'
+                , 'id'
+                , 'company'
+                , 'DepartmentName'
+                , 'title'
+                , 'PositionRemuneration'
+                , 'location', 'JobCategory'
+                , 'type'
+                , 'description'
+                , 'how_to_apply'
+                , 'created_at'
+                , 'ApplicationCloseDate'
+                , 'url'
+                , 'Time'
+            ]
+        ]
+        # rename the column name
+        data_frame.columns = [
+            'Source'
+            , 'PositionID'
+            , 'OrganizationName'
+            , 'DepartmentName'
+            , 'PositionTitle'
+            , 'PositionRemuneration'
+            , 'PositionLocation'
+            , 'JobCategory'
+            , 'PositionSchedule'
+            , 'Description'
+            , 'HowToApply'
+            , 'ApplyURI'
+            , 'PublicationStartDate'
+            , 'ApplicationCloseDate'
+            , 'Time'
+        ]
         self._logger.info('Data Frame转换成功...')
         return data_frame
 
