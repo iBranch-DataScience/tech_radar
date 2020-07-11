@@ -29,6 +29,24 @@ class JsonSerializable(Serializable):
 
 
 class Deserializable(ABC):
+    features = [
+        'Source'
+        , 'PositionID'
+        , 'OrganizationName'
+        , 'DepartmentName'
+        , 'PositionTitle'
+        , 'PositionRemuneration'
+        , 'PositionLocation'
+        , 'JobCategory'
+        , 'PositionSchedule'
+        , 'Description'
+        , 'HowToApply'
+        , 'ApplyURI'
+        , 'PublicationStartDate'
+        , 'ApplicationCloseDate'
+        , 'Time'
+    ]
+
     def from_json(self, json_obj):
         raise NotImplementedError()
 

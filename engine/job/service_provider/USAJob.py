@@ -1,5 +1,5 @@
+import datetime
 import logging
-import time
 
 import pandas as pd
 from ibranch.scraping_scheduler.configuration.Configurator import Configuration
@@ -7,7 +7,7 @@ from ibranch.scraping_scheduler.engine.client.HttpClient import ClientFactory
 from ibranch.scraping_scheduler.util.Toolbox import LogicUtil
 
 from api.Client import Request, Response, ScrapingStrategy, Deserializable
-import datetime
+
 
 class USAJobRequest(Request):
     def __init__(self):
@@ -93,75 +93,44 @@ class USAJobDeserializable(Deserializable):
         self._logger.info('json文件转换Data Frame中...')
         # transform json to data frame
         elements = json_obj['SearchResult']['SearchResultItems']
-        # list
-        feature_names = {
-            'PositionID'
-            , 'PositionTitle'
-            , 'ApplyURI'
-            , 'PositionLocation'
+        elements = [e['MatchedObjectDescriptor'] for e in elements]
+        jobs = pd.DataFrame.from_dict(elements)
+        job_discriptions = pd.DataFrame.from_dict(jobs.UserArea.tolist())
+        job_discriptions = pd.DataFrame.from_dict(job_discriptions.Details.tolist())
+        jobs.loc[:, 'Description'] = "QualificationSummary:" + jobs.QualificationSummary.astype(str) \
+                                     + " MajorDuties:" + job_discriptions.MajorDuties.astype(str) \
+                                     + " Requirements:" + job_discriptions.Requirements.astype(str) \
+                                     + " Evaluations:" + job_discriptions.Evaluations.astype(str) \
+                                     + " WhatToExpectNext:" + job_discriptions.WhatToExpectNext.astype(str) \
+                                     + " RequiredDocuments:" + job_discriptions.RequiredDocuments.astype(str) \
+                                     + " Benefits:" + job_discriptions.Benefits.astype(str) \
+                                     + " JobSummary:" + job_discriptions.JobSummary.astype(str) \
+                                     + " OtherInformation:" + job_discriptions.OtherInformation.astype(str) \
+                                     + " Benefits:" + job_discriptions.Benefits.astype(str)
+        jobs.loc[:, 'HowToApply'] = job_discriptions.HowToApply
+        jobs.loc[:, 'Source'] = 'USAJobs'
+        jobs.loc[:, 'Time'] = datetime.datetime.now()
+
+        features = [
+            'Source'
+            , 'PositionID'
             , 'OrganizationName'
             , 'DepartmentName'
+            , 'PositionTitle'
+            , 'PositionRemuneration'
+            , 'PositionLocation'
             , 'JobCategory'
             , 'PositionSchedule'
-            , 'PositionRemuneration'
+            , 'Description'
+            , 'HowToApply'
+            , 'ApplyURI'
             , 'PublicationStartDate'
             , 'ApplicationCloseDate'
-        }
-        row_records = [
-            {
-                key: value for key, value in element['MatchedObjectDescriptor'].items() if key in feature_names
-            } for element in elements
+            , 'Time'
         ]
-        how_to_apply_records = [
-            element['MatchedObjectDescriptor']['UserArea']['Details']['HowToApply']
-            for element in elements
-
-        ]
-        description_records = [
-            self._concat_description(element)
-            for element in elements
-        ]
-        data_frame = pd.DataFrame(row_records)
-        data_frame['HowToApply'] = how_to_apply_records
-        data_frame['Description'] = description_records
-        data_frame['Source'] = 'USAJobs'
-        data_frame['Time'] = datetime.datetime.now()
-        data_frame = data_frame[
-            [
-                'Source'
-                , 'PositionID'
-                , 'OrganizationName'
-                , 'DepartmentName'
-                , 'PositionTitle'
-                , 'PositionRemuneration'
-                , 'PositionLocation'
-                , 'JobCategory'
-                , 'PositionSchedule'
-                , 'Description'
-                , 'HowToApply'
-                , 'ApplyURI'
-                , 'PublicationStartDate'
-                , 'ApplicationCloseDate'
-                , 'Time'
-             ]
-        ]
-
+        jobs = jobs.loc[:, features]
         self._logger.info('Data Frame转换成功...')
-        return data_frame
-
-    def _concat_description(self, element):
-        qualification_summary = element['MatchedObjectDescriptor']['QualificationSummary']
-        inner_dict = element['MatchedObjectDescriptor']['UserArea']['Details']
-        return f"QualificationSummary:{qualification_summary}" \
-               f"MajorDuties:{inner_dict['MajorDuties']}" \
-               f"Requirements:{inner_dict['Requirements']}" \
-               f"Evaluations:{inner_dict['Evaluations']}" \
-               f"WhatToExpectNext:{inner_dict['WhatToExpectNext']}" \
-               f"RequiredDocuments:{inner_dict['RequiredDocuments']}" \
-               f"Benefits:{inner_dict['Benefits']}" \
-               f"JobSummary:{inner_dict['JobSummary']}" \
-               f"OtherInformation:{inner_dict['OtherInformation']}" \
-               f"Benefits:{inner_dict['Benefits']}"
+        return jobs
 
 
 class USAJobResponse(Response):
@@ -190,6 +159,7 @@ class USAJobScrapingStrategy(ScrapingStrategy, USAJobDeserializable):
         self._logger = logging.getLogger(type(self).__name__)
         super(USAJobScrapingStrategy, self).__init__()
         ScrapingStrategy.register(USAJobScrapingStrategy)
+        USAJobDeserializable.register(USAJobScrapingStrategy)
         self._http_client = ClientFactory().build()
 
     def scrape(self, request: USAJobRequest) -> USAJobResponse:
