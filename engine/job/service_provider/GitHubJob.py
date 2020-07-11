@@ -1,11 +1,13 @@
 import datetime
 import logging
+from typing import Iterable
 
 import pandas as pd
 from ibranch.scraping_scheduler.engine.client.HttpClient import ClientFactory
 from ibranch.scraping_scheduler.util.Toolbox import LogicUtil
 
 from api.Client import Request, Response, ScrapingStrategy, Deserializable
+from domain.Entity import RecruitingRecord
 
 
 class GitHubJobRequest(Request):
@@ -73,9 +75,9 @@ class GithubJobDeserializable(Deserializable):
         super(GithubJobDeserializable, self).__init__()
         Deserializable.register(GithubJobDeserializable)
 
-    def from_json(self, json_obj) -> pd.DataFrame:
+    def from_json(self, json_obj) -> Iterable[RecruitingRecord]:
         self._logger.info('json文件转换Data Frame中...')
-        data_frame = pd.DataFrame.from_records(json_obj, index=range(len(json_obj)))
+        data_frame = pd.DataFrame.from_records(json_obj)
         data_frame['Source'] = 'GithubJobs'
         data_frame['Time'] = datetime.datetime.now()
         original_feature_names = [
@@ -100,25 +102,21 @@ class GithubJobDeserializable(Deserializable):
                 data_frame[col_name] = None
         data_frame = data_frame[original_feature_names]
         # rename the column name
-        data_frame.columns = [Deserializable.features]
+        data_frame.columns = RecruitingRecord.features
         self._logger.info('Data Frame转换成功...')
-        return data_frame
+        return list(data_frame.apply(self._to_recruiting_record, axis=1))
+
+    def _to_recruiting_record(self, row: pd.Series) -> RecruitingRecord:
+        record = RecruitingRecord()
+        for key, value in row.to_dict().items():
+            setattr(record, key, value)
+        return record
 
 
 class GitHubJobResponse(Response):
     def __init__(self, response, records: pd.DataFrame):
-        super(GitHubJobResponse, self).__init__()
+        super(GitHubJobResponse, self).__init__(response, records)
         Response.register(GitHubJobResponse)
-        self._response = response
-        self._records = records
-
-    @property
-    def records(self) -> pd.DataFrame:
-        return self._records
-
-    @property
-    def raw_response(self):
-        return self._response
 
 
 class GitHubJobScrapingStrategy(ScrapingStrategy, GithubJobDeserializable):
@@ -127,6 +125,7 @@ class GitHubJobScrapingStrategy(ScrapingStrategy, GithubJobDeserializable):
         ScrapingStrategy.register(GitHubJobScrapingStrategy)
         self._http_client = ClientFactory().build()
 
+    @ScrapingStrategy.save_record('raw_github_job')
     def scrape(self, request: GitHubJobRequest) -> GitHubJobResponse:
         api = self._build_api_url(request)
         try:

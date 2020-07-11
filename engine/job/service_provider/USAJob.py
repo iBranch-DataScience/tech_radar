@@ -1,5 +1,6 @@
 import datetime
 import logging
+from typing import Iterable
 
 import pandas as pd
 from ibranch.scraping_scheduler.configuration.Configurator import Configuration
@@ -7,6 +8,7 @@ from ibranch.scraping_scheduler.engine.client.HttpClient import ClientFactory
 from ibranch.scraping_scheduler.util.Toolbox import LogicUtil
 
 from api.Client import Request, Response, ScrapingStrategy, Deserializable
+from domain.Entity import RecruitingRecord
 
 
 class USAJobRequest(Request):
@@ -89,7 +91,7 @@ class USAJobDeserializable(Deserializable):
         super(USAJobResponse, self).__init__()
         Deserializable.register(USAJobResponse)
 
-    def from_json(self, json_obj) -> pd.DataFrame:
+    def from_json(self, json_obj) -> Iterable[RecruitingRecord]:
         self._logger.info('json文件转换Data Frame中...')
         # transform json to data frame
         elements = json_obj['SearchResult']['SearchResultItems']
@@ -111,43 +113,22 @@ class USAJobDeserializable(Deserializable):
         jobs.loc[:, 'Source'] = 'USAJobs'
         jobs.loc[:, 'Time'] = datetime.datetime.now()
 
-        features = [
-            'Source'
-            , 'PositionID'
-            , 'OrganizationName'
-            , 'DepartmentName'
-            , 'PositionTitle'
-            , 'PositionRemuneration'
-            , 'PositionLocation'
-            , 'JobCategory'
-            , 'PositionSchedule'
-            , 'Description'
-            , 'HowToApply'
-            , 'ApplyURI'
-            , 'PublicationStartDate'
-            , 'ApplicationCloseDate'
-            , 'Time'
-        ]
-        jobs = jobs.loc[:, features]
+        jobs = jobs.loc[:, RecruitingRecord.features]
         self._logger.info('Data Frame转换成功...')
-        return jobs
+        return list(jobs.apply(self._to_recruiting_record, axis=1))
+
+    def _to_recruiting_record(self, row: pd.Series) -> RecruitingRecord:
+        record = RecruitingRecord()
+        for key, value in row.to_dict().items():
+            setattr(record, key, value)
+        return record
 
 
 class USAJobResponse(Response):
-    def __init__(self, response, page_num: str, records: pd.DataFrame):
-        super(USAJobResponse, self).__init__()
+    def __init__(self, response, records: pd.DataFrame, page_num: str):
+        super(USAJobResponse, self).__init__(response, records)
         Response.register(USAJobResponse)
-        self._response = response
         self._page_num = page_num
-        self._records = records
-
-    @property
-    def records(self) -> pd.DataFrame:
-        return self._records
-
-    @property
-    def raw_response(self):
-        return self._response
 
     @property
     def page_num(self) -> int:
@@ -162,6 +143,7 @@ class USAJobScrapingStrategy(ScrapingStrategy, USAJobDeserializable):
         USAJobDeserializable.register(USAJobScrapingStrategy)
         self._http_client = ClientFactory().build()
 
+    @ScrapingStrategy.save_record('raw_usa_job')
     def scrape(self, request: USAJobRequest) -> USAJobResponse:
         api = self._build_api_url(request)
         headers = self._build_headers(request)
@@ -181,7 +163,7 @@ class USAJobScrapingStrategy(ScrapingStrategy, USAJobDeserializable):
             # but can be defined in your request up to 500 per request.
             page_num = int(raw_json['SearchResult']['UserArea']['NumberOfPages'])
             records = self.from_json(raw_json)
-            return USAJobResponse(raw_json, page_num, records)
+            return USAJobResponse(raw_json, records, page_num)
         except Exception as e:
             self._logger.error(f"USAJob 请求异常: {e}")
             return None

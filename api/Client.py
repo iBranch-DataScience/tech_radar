@@ -1,6 +1,12 @@
 import json
 import logging
 from abc import ABC, abstractmethod
+from typing import Iterable
+
+import pandas as pd
+
+from domain.Entity import RecruitingRecord
+from repository.Repository import Repository
 
 
 class Serializable(ABC):
@@ -29,25 +35,7 @@ class JsonSerializable(Serializable):
 
 
 class Deserializable(ABC):
-    features = [
-        'Source'
-        , 'PositionID'
-        , 'OrganizationName'
-        , 'DepartmentName'
-        , 'PositionTitle'
-        , 'PositionRemuneration'
-        , 'PositionLocation'
-        , 'JobCategory'
-        , 'PositionSchedule'
-        , 'Description'
-        , 'HowToApply'
-        , 'ApplyURI'
-        , 'PublicationStartDate'
-        , 'ApplicationCloseDate'
-        , 'Time'
-    ]
-
-    def from_json(self, json_obj):
+    def from_json(self, json_obj) -> Iterable[RecruitingRecord]:
         raise NotImplementedError()
 
 
@@ -57,8 +45,17 @@ class Request(ABC):
 
 
 class Response(ABC):
-    def __init__(self):
-        pass
+    def __init__(self, response, records: pd.DataFrame):
+        self._response = response
+        self._records = records
+
+    @property
+    def records(self) -> pd.DataFrame:
+        return self._records
+
+    @property
+    def raw_response(self):
+        return self._response
 
 
 class ScrapingStrategy(ABC):
@@ -68,6 +65,23 @@ class ScrapingStrategy(ABC):
     @abstractmethod
     def scrape(self, request: Request) -> Response:
         raise NotImplementedError()
+
+    @staticmethod
+    def save_record(portal_name):
+        def _record_raw_data(func):
+            def wrapper_func(*args, **kwargs):
+                x = func(*args, **kwargs)
+                if isinstance(x.raw_response, Iterable):
+                    for item in x.raw_response:
+                        Repository().insert_raw_data(portal_name, {'raw_data': item})
+                else:
+                    Repository().insert_raw_data(portal_name, {'raw_data': x.raw_response})
+
+                for record in x.records:
+                    Repository().insert_raw_data('recruiting_record', record.to_dict())
+                return x
+            return wrapper_func
+        return _record_raw_data
 
 
 class Client:
