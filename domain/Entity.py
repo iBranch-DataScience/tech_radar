@@ -3,157 +3,166 @@ from ibranch.scraping_scheduler.domain.Profile import Domain
 
 class RecruitingRecord(Domain):
     features = [
-        'Source'
-        , 'PositionID'
-        , 'OrganizationName'
-        , 'DepartmentName'
-        , 'PositionTitle'
-        , 'PositionRemuneration'
-        , 'PositionLocation'
-        , 'JobCategory'
-        , 'PositionSchedule'
-        , 'Description'
-        , 'HowToApply'
-        , 'ApplyURI'
-        , 'PublicationStartDate'
-        , 'ApplicationCloseDate'
-        , 'Time'
+        'source'
+        , 'position_id'
+        , 'organization_name'
+        , 'department_name'
+        , 'position_title'
+        , 'position_remuneration'
+        , 'position_location'
+        , 'job_category'
+        , 'position_schedule'
+        , 'description'
+        , 'how_to_apply'
+        , 'apply_uri'
+        , 'publication_start_date'
+        , 'application_close_date'
+        , 'time'
     ]
 
     def __init__(self):
         super(RecruitingRecord, self).__init__()
-        self._Source = None
-        self._PositionID = None
-        self._OrganizationName = None
-        self._DepartmentName = None
-        self._PositionTitle = None
-        self._PositionRemuneration = None
-        self._PositionLocation = None
-        self._JobCategory = None
-        self._PositionSchedule = None
-        self._Description = None
-        self._HowToApply = None
-        self._ApplyURI = None
-        self._PublicationStartDate = None
-        self._ApplicationCloseDate = None
-        self._Time = None
+        self._source = None
+        self._raw_doc_id = None
+        self._position_id = None
+        self._organization_name = None
+        self._department_name = None
+        self._position_title = None
+        self._position_remuneration = None
+        self._position_location = None
+        self._job_category = None
+        self._position_schedule = None
+        self._description = None
+        self._how_to_apply = None
+        self._apply_uri = None
+        self._publication_start_date = None
+        self._application_close_date = None
+        self._time = None
 
     @property
-    def Source(self):
-        return self._Source
+    def source(self):
+        return self._source
 
-    @Source.setter
-    def Source(self, Source):
-        self._Source = Source
-
-    @property
-    def PositionID(self):
-        return self._PositionID
-
-    @PositionID.setter
-    def PositionID(self, PositionID):
-        self._PositionID = PositionID
+    @source.setter
+    def source(self, source):
+        self._source = source
 
     @property
-    def OrganizationName(self):
-        return self._OrganizationName
+    def raw_doc_id(self):
+        return self._raw_doc_id
 
-    @OrganizationName.setter
-    def OrganizationName(self, OrganizationName):
-        self._OrganizationName = OrganizationName
-
-    @property
-    def DepartmentName(self):
-        return self._DepartmentName
-
-    @DepartmentName.setter
-    def DepartmentName(self, DepartmentName):
-        self._DepartmentName = DepartmentName
+    @raw_doc_id.setter
+    def raw_doc_id(self, raw_doc_id):
+        self._raw_doc_id = raw_doc_id
 
     @property
-    def PositionTitle(self):
-        return self._PositionTitle
+    def position_id(self):
+        return self._position_id
 
-    @PositionTitle.setter
-    def PositionTitle(self, PositionTitle):
-        self._PositionTitle = PositionTitle
-
-    @property
-    def PositionRemuneration(self):
-        return self._PositionRemuneration
-
-    @PositionRemuneration.setter
-    def PositionRemuneration(self, PositionRemuneration):
-        self._PositionRemuneration = PositionRemuneration
+    @position_id.setter
+    def position_id(self, position_id):
+        self._position_id = position_id
 
     @property
-    def PositionLocation(self):
-        return self._PositionLocation
+    def organization_name(self):
+        return self._organization_name
 
-    @PositionLocation.setter
-    def PositionLocation(self, PositionLocation):
-        self._PositionLocation = PositionLocation
-
-    @property
-    def JobCategory(self):
-        return self._JobCategory
-
-    @JobCategory.setter
-    def JobCategory(self, JobCategory):
-        self._JobCategory = JobCategory
+    @organization_name.setter
+    def organization_name(self, organization_name):
+        self._organization_name = organization_name
 
     @property
-    def PositionSchedule(self):
-        return self._PositionSchedule
+    def department_name(self):
+        return self._department_name
 
-    @PositionSchedule.setter
-    def PositionSchedule(self, PositionSchedule):
-        self._PositionSchedule = PositionSchedule
-
-    @property
-    def Description(self):
-        return self._Description
-
-    @Description.setter
-    def Description(self, Description):
-        self._Description = Description
+    @department_name.setter
+    def department_name(self, department_name):
+        self._department_name = department_name
 
     @property
-    def HowToApply(self):
-        return self._HowToApply
+    def position_title(self):
+        return self._position_title
 
-    @HowToApply.setter
-    def HowToApply(self, HowToApply):
-        self._HowToApply = HowToApply
-
-    @property
-    def ApplyURI(self):
-        return self._ApplyURI
-
-    @ApplyURI.setter
-    def ApplyURI(self, ApplyURI):
-        self._ApplyURI = ApplyURI
+    @position_title.setter
+    def position_title(self, position_title):
+        self._position_title = position_title
 
     @property
-    def PublicationStartDate(self):
-        return self._PublicationStartDate
+    def position_remuneration(self):
+        return self._position_remuneration
 
-    @PublicationStartDate.setter
-    def PublicationStartDate(self, PublicationStartDate):
-        self._PublicationStartDate = PublicationStartDate
-
-    @property
-    def ApplicationCloseDate(self):
-        return self._ApplicationCloseDate
-
-    @ApplicationCloseDate.setter
-    def ApplicationCloseDate(self, ApplicationCloseDate):
-        self._ApplicationCloseDate = ApplicationCloseDate
+    @position_remuneration.setter
+    def position_remuneration(self, position_remuneration):
+        self._position_remuneration = position_remuneration
 
     @property
-    def Time(self):
-        return self._Time
+    def position_location(self):
+        return self._position_location
 
-    @Time.setter
-    def Time(self, Time):
-        self._Time = Time
+    @position_location.setter
+    def position_location(self, position_location):
+        self._position_location = position_location
+
+    @property
+    def job_category(self):
+        return self._job_category
+
+    @job_category.setter
+    def job_category(self, JobCategory):
+        self._job_category = JobCategory
+
+    @property
+    def position_schedule(self):
+        return self._position_schedule
+
+    @position_schedule.setter
+    def position_schedule(self, position_schedule):
+        self._position_schedule = position_schedule
+
+    @property
+    def description(self):
+        return self._description
+
+    @description.setter
+    def description(self, description):
+        self._description = description
+
+    @property
+    def how_to_apply(self):
+        return self._how_to_apply
+
+    @how_to_apply.setter
+    def how_to_apply(self, how_to_apply):
+        self._how_to_apply = how_to_apply
+
+    @property
+    def apply_uri(self):
+        return self._apply_uri
+
+    @apply_uri.setter
+    def apply_uri(self, ApplyURI):
+        self._apply_uri = ApplyURI
+
+    @property
+    def publication_start_date(self):
+        return self._publication_start_date
+
+    @publication_start_date.setter
+    def publication_start_date(self, publication_start_date):
+        self._publication_start_date = publication_start_date
+
+    @property
+    def application_close_date(self):
+        return self._application_close_date
+
+    @application_close_date.setter
+    def application_close_date(self, application_close_date):
+        self._application_close_date = application_close_date
+
+    @property
+    def time(self):
+        return self._time
+
+    @time.setter
+    def time(self, time):
+        self._time = time

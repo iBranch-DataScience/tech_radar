@@ -1,13 +1,13 @@
-import datetime
 import logging
 from typing import Iterable
 
 import pandas as pd
 from ibranch.scraping_scheduler.engine.client.HttpClient import ClientFactory
-from ibranch.scraping_scheduler.util.Toolbox import LogicUtil
+from ibranch.scraping_scheduler.util.Toolbox import LogicUtil, Formatter
 
 from api.Client import Request, Response, ScrapingStrategy, Deserializable
 from domain.Entity import RecruitingRecord
+from util.Toolbox import CONSTANT
 
 
 class GitHubJobRequest(Request):
@@ -70,6 +70,24 @@ class GitHubJobRequest(Request):
 
 
 class GithubJobDeserializable(Deserializable):
+    features = [
+        'Source'
+        , 'id'
+        , 'company'
+        , 'DepartmentName'
+        , 'title'
+        , 'PositionRemuneration'
+        , 'location'
+        , 'JobCategory'
+        , 'type'
+        , 'description'
+        , 'how_to_apply'
+        , 'created_at'
+        , 'ApplicationCloseDate'
+        , 'url'
+        , 'Time'
+    ]
+
     def __init__(self):
         self._logger = logging.getLogger(type(self).__name__)
         super(GithubJobDeserializable, self).__init__()
@@ -78,32 +96,18 @@ class GithubJobDeserializable(Deserializable):
     def from_json(self, json_obj) -> Iterable[RecruitingRecord]:
         self._logger.info('json文件转换Data Frame中...')
         data_frame = pd.DataFrame.from_records(json_obj)
-        data_frame['Source'] = 'GithubJobs'
-        data_frame['Time'] = datetime.datetime.now()
-        original_feature_names = [
-            'Source'
-            , 'id'
-            , 'company'
-            , 'DepartmentName'
-            , 'title'
-            , 'PositionRemuneration'
-            , 'location'
-            , 'JobCategory'
-            , 'type'
-            , 'description'
-            , 'how_to_apply'
-            , 'created_at'
-            , 'ApplicationCloseDate'
-            , 'url'
-            , 'Time'
-        ]
-        for col_name in original_feature_names:
+        data_frame['Source'] = CONSTANT.github_job()
+        data_frame['Time'] = Formatter.get_timestamp('%Y%m%d%H%M%S')
+
+        for col_name in GithubJobDeserializable.features:
             if col_name not in data_frame.columns:
                 data_frame[col_name] = None
-        data_frame = data_frame[original_feature_names]
+
+        data_frame = data_frame[GithubJobDeserializable.features]
         # rename the column name
         data_frame.columns = RecruitingRecord.features
         self._logger.info('Data Frame转换成功...')
+
         return list(data_frame.apply(self._to_recruiting_record, axis=1))
 
     def _to_recruiting_record(self, row: pd.Series) -> RecruitingRecord:

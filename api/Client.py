@@ -7,6 +7,7 @@ import pandas as pd
 
 from domain.Entity import RecruitingRecord
 from repository.Repository import Repository
+from util.Toolbox import MD5Encoder
 
 
 class Serializable(ABC):
@@ -71,14 +72,25 @@ class ScrapingStrategy(ABC):
         def _record_raw_data(func):
             def wrapper_func(*args, **kwargs):
                 x = func(*args, **kwargs)
-                if isinstance(x.raw_response, Iterable):
-                    for item in x.raw_response:
-                        Repository().insert_raw_data(portal_name, {'raw_data': item})
-                else:
-                    Repository().insert_raw_data(portal_name, {'raw_data': x.raw_response})
+
+                md5_code = MD5Encoder.encode_json(x.raw_response)
+
+                raw_doc_id = Repository().idempotent_insert(portal_name, md5_code, {
+                    'md5': md5_code,
+                    'raw_data': x.raw_response,
+                })
+
+                if not raw_doc_id:
+                    return x
 
                 for record in x.records:
-                    Repository().insert_raw_data('recruiting_record', record.to_dict())
+                    md5_code = MD5Encoder.encode_json(record.to_dict())
+                    record.raw_doc_id = raw_doc_id
+                    record.to_dict()
+                    Repository().idempotent_insert('recruiting_record', md5_code, {
+                        'md5': md5_code,
+                        **record.to_dict()
+                    })
                 return x
             return wrapper_func
         return _record_raw_data

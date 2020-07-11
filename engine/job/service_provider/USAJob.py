@@ -1,14 +1,14 @@
-import datetime
 import logging
 from typing import Iterable
 
 import pandas as pd
 from ibranch.scraping_scheduler.configuration.Configurator import Configuration
 from ibranch.scraping_scheduler.engine.client.HttpClient import ClientFactory
-from ibranch.scraping_scheduler.util.Toolbox import LogicUtil
+from ibranch.scraping_scheduler.util.Toolbox import LogicUtil, Formatter
 
 from api.Client import Request, Response, ScrapingStrategy, Deserializable
 from domain.Entity import RecruitingRecord
+from util.Toolbox import CONSTANT
 
 
 class USAJobRequest(Request):
@@ -86,6 +86,24 @@ class USAJobRequest(Request):
 
 
 class USAJobDeserializable(Deserializable):
+    features = [
+        'Source'
+        , 'PositionID'
+        , 'OrganizationName'
+        , 'DepartmentName'
+        , 'PositionTitle'
+        , 'PositionRemuneration'
+        , 'PositionLocation'
+        , 'JobCategory'
+        , 'PositionSchedule'
+        , 'Description'
+        , 'HowToApply'
+        , 'ApplyURI'
+        , 'PublicationStartDate'
+        , 'ApplicationCloseDate'
+        , 'Time'
+    ]
+
     def __init__(self):
         self._logger = logging.getLogger(type(self).__name__)
         super(USAJobResponse, self).__init__()
@@ -96,9 +114,12 @@ class USAJobDeserializable(Deserializable):
         # transform json to data frame
         elements = json_obj['SearchResult']['SearchResultItems']
         elements = [e['MatchedObjectDescriptor'] for e in elements]
+
         jobs = pd.DataFrame.from_dict(elements)
         job_discriptions = pd.DataFrame.from_dict(jobs.UserArea.tolist())
         job_discriptions = pd.DataFrame.from_dict(job_discriptions.Details.tolist())
+        jobs.loc[:, 'Source'] = CONSTANT.usa_job()
+        jobs.loc[:, 'Time'] = Formatter.get_timestamp('%Y%m%d%H%M%S')
         jobs.loc[:, 'Description'] = "QualificationSummary:" + jobs.QualificationSummary.astype(str) \
                                      + " MajorDuties:" + job_discriptions.MajorDuties.astype(str) \
                                      + " Requirements:" + job_discriptions.Requirements.astype(str) \
@@ -110,10 +131,9 @@ class USAJobDeserializable(Deserializable):
                                      + " OtherInformation:" + job_discriptions.OtherInformation.astype(str) \
                                      + " Benefits:" + job_discriptions.Benefits.astype(str)
         jobs.loc[:, 'HowToApply'] = job_discriptions.HowToApply
-        jobs.loc[:, 'Source'] = 'USAJobs'
-        jobs.loc[:, 'Time'] = datetime.datetime.now()
 
-        jobs = jobs.loc[:, RecruitingRecord.features]
+        jobs = jobs.loc[:, USAJobDeserializable.features]
+        jobs.columns = RecruitingRecord.features
         self._logger.info('Data Frame转换成功...')
         return list(jobs.apply(self._to_recruiting_record, axis=1))
 
