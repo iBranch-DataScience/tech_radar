@@ -49,6 +49,7 @@ class Keyword:
             configs.load(config_file)
 
             params = {k: v.data.lower().split(',') for k, v in configs.items()}
+            {k: v.append(' ') for k, v in params.items()}
             self._keyword_matrix = ParameterGenerator.create_combination_matrix(params)
 
     def get_combination(self) -> pd.DataFrame:
