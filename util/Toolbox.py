@@ -43,7 +43,6 @@ class ParameterGenerator:
 class Keyword:
     def __init__(self):
         root_dir = pathlib.Path(__file__).parent.parent.absolute()
-        print(pathlib.Path(__file__).parent.parent.absolute())
         with open(f'{root_dir}/resource/property/keyword.properties', 'rb') as config_file:
             configs = Properties()
             configs.load(config_file)
