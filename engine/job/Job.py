@@ -19,22 +19,21 @@ class USAJob(BaseJob):
         cache_catelog = Cache().get_new_cache(Queue)
         Cache().register_catelog(self.cache_name, cache_catelog)
 
-        # keywords = Keyword().get_combination_str()
-        # Cache().register_catelog("keywords", keywords)
-        # print(keywords[0])
+        keywords = Keyword().get_combination_str()
+        Cache().register_catelog("keywords", keywords)
+        print(keywords[0])
     # Run under interval
     def run(self):
         self._logger.info("<<<iBranch 技术雷达 presents>>>")
-        # keyword row numbers
-        # len_keywords = len(Cache().get_existing_cache("keywords"))
+        #keyword row numbers
+        len_keywords = len(Cache().get_existing_cache("keywords"))
         flow_shaper = FlowShaper().get(self.cache_name)
         if flow_shaper.acquire():
-            # for i in range(0, len_keywords):
-            #     current_keyword = Cache().get_existing_cache("keywords")[i]
-            # task = USAJobTask(keyword=current_keyword)
-            task = USAJobTask()
-            task.register_post_exec(lambda: FlowShaper().get(self.cache_name).release())
-            TaskExecutor().submit_tasks(type(self).__name__, [task])
+            for i in range(0, len_keywords):
+                current_keyword = Cache().get_existing_cache("keywords")[i]
+                task = USAJobTask(keyword=current_keyword)
+                task.register_post_exec(lambda: FlowShaper().get(self.cache_name).release())
+                TaskExecutor().submit_tasks(type(self).__name__, [task])
             self._logger.info(f"任务已启动. ")
         else:
             self._logger.info(f"任务启动失败. ")

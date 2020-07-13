@@ -62,6 +62,7 @@ class Keyword:
 
     def get_combination_str(self) -> list:
         return self._keyword_matrix.iloc[0:100,:].apply(self.concat_function, axis=1)
+
     def concat_function(self, row):
         if_else = lambda x: LogicUtil.if_else_default(x+'+', '')
         concat_keyword =if_else(row['db'])\
