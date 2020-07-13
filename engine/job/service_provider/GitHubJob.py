@@ -158,4 +158,5 @@ class GitHubJobScrapingStrategy(ScrapingStrategy, GithubJobDeserializable):
                f"&long={if_else(request.longitude)}"
 
     def _build_api_url(self, request: GitHubJobRequest) -> str:
+
         return f'%s%s' % (request.url, self._build_parameter(request))

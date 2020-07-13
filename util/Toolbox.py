@@ -4,6 +4,7 @@ import pathlib
 
 import pandas as pd
 from ibranch.scraping_scheduler.domain.System import CONSTANT as BaseConstant
+from ibranch.scraping_scheduler.util.Toolbox import LogicUtil
 from jproperties import Properties
 from singleton_decorator import singleton
 
@@ -53,4 +54,23 @@ class Keyword:
             self._keyword_matrix = ParameterGenerator.create_combination_matrix(params)
 
     def get_combination(self) -> pd.DataFrame:
+        """
+
+        :rtype: object
+        """
         return self._keyword_matrix
+
+    def get_combination_str(self) -> list:
+        return self._keyword_matrix.iloc[0:100,:].apply(self.concat_function, axis=1)
+    def concat_function(self, row):
+        if_else = lambda x: LogicUtil.if_else_default(x+'+', '')
+        concat_keyword =if_else(row['db'])\
+                + if_else(row['app'])\
+                + if_else(row['algorithm'])\
+                + if_else(row['protocol'])\
+                + if_else(row['framework'])\
+                + if_else(row['midware'])\
+                + row['cicd']
+        return concat_keyword
+
+

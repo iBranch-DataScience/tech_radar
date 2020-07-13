@@ -25,7 +25,7 @@ class USAJobRequest(Request):
         self._job_category_code = None
         self._keyword = None
         self._location = None
-        self._page_num = None
+        self._page_num = 1
         self._results_per_page = 500
 
     @property
@@ -110,9 +110,12 @@ class USAJobDeserializable(Deserializable):
         Deserializable.register(USAJobResponse)
 
     def from_json(self, json_obj) -> Iterable[RecruitingRecord]:
-        self._logger.info('json文件转换Data Frame中...')
         # transform json to data frame
         elements = json_obj['SearchResult']['SearchResultItems']
+        if not elements:
+            self._logger.info('未找到相关数据...')
+            return
+        self._logger.info('json文件转换Data Frame中...')
         elements = [e['MatchedObjectDescriptor'] for e in elements]
 
         jobs = pd.DataFrame.from_dict(elements)
@@ -148,6 +151,7 @@ class USAJobResponse(Response):
     def __init__(self, response, records: pd.DataFrame, page_num: str):
         super(USAJobResponse, self).__init__(response, records)
         Response.register(USAJobResponse)
+        # total page numbers
         self._page_num = page_num
 
     @property
@@ -196,6 +200,7 @@ class USAJobScrapingStrategy(ScrapingStrategy, USAJobDeserializable):
                f"&ResultsPerPage={if_else(request.results_per_page)}" \
                f"&Page={if_else(request.page_num)}"
 
+
     def _build_headers(self, request: USAJobRequest) -> dict:
         header = dict()
         header["Host"] = request.host
@@ -205,3 +210,4 @@ class USAJobScrapingStrategy(ScrapingStrategy, USAJobDeserializable):
 
     def _build_api_url(self, request: USAJobRequest) -> str:
         return f'%s%s' % (request.url, self._build_parameter(request))
+
