@@ -11,12 +11,6 @@ class USAJobTask(Task):
         Task.register(USAJobTask)
         self._client = Client(USAJobScrapingStrategy())
 
-    def run(self):
-        try:
-            self.execute()
-        except Exception as e:
-            self._logger.error(f'Exception when execute the {self.__class__} task , {e}')
-
     def execute(self):
         self._logger.info('开始获取USAJob 的数据...')
         request = USAJobRequest()
@@ -36,12 +30,6 @@ class GitHubJobTask(Task):
         super(GitHubJobTask, self).__init__()
         Task.register(GitHubJobTask)
         self._client = Client(GitHubJobScrapingStrategy())
-
-    def run(self):
-        try:
-            self.execute()
-        except Exception as e:
-            self._logger.error(f'Exception when execute the {self.__class__} task , {e}')
 
     def execute(self):
         self._logger.info('开始获取GitHubJob 的数据...')

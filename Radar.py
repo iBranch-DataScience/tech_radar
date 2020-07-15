@@ -8,6 +8,7 @@ if __name__ == "__main__":
     Configuration(args)
 
     ScraperEngine().start()
+    # print(Keyword().get_combination())
 
 # import requests
 #
