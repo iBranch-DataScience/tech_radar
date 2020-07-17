@@ -86,7 +86,6 @@ class ScrapingStrategy(ABC):
                 for record in x.records:
                     md5_code = MD5Encoder.encode_json(record.to_dict())
                     record.raw_doc_id = raw_doc_id
-                    record.to_dict()
                     Repository().idempotent_insert('recruiting_record', md5_code, {
                         'md5': md5_code,
                         **record.to_dict()
