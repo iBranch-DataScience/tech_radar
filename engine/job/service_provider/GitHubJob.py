@@ -118,8 +118,8 @@ class GithubJobDeserializable(Deserializable):
 
 
 class GitHubJobResponse(Response):
-    def __init__(self, response, records: pd.DataFrame):
-        super(GitHubJobResponse, self).__init__(response, records)
+    def __init__(self, response, records: pd.DataFrame, http_code: int):
+        super(GitHubJobResponse, self).__init__(response, records, http_code)
         Response.register(GitHubJobResponse)
 
 
@@ -138,13 +138,13 @@ class GitHubJobScrapingStrategy(ScrapingStrategy, GithubJobDeserializable):
                 self._logger.info("GitHubJob 访问异常. 返回值为空")
                 return None
             if not res.is_success():
-                self._logger.info("GitHubJob 访问异常. HTTP 状态码: %s" % res.status_code)
+                self._logger.info("GitHubJob 访问异常. HTTP 状态码: %s" % res.html_status_code)
                 return None
             self._logger.info("GitHubJob 访问成功")
 
             raw_json = res.json
             records = self.from_json(raw_json)
-            return GitHubJobResponse(raw_json, records)
+            return GitHubJobResponse(raw_json, records, res.html_status_code)
         except Exception as e:
             self._logger.error(f"GitHubJob 请求异常: {e}")
             return None

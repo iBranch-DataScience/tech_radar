@@ -24,15 +24,22 @@ jobs:
   package: engine.job
   module: Job
   list:
+    InitializationJob:
+        type: sec
+        sec: 30
+        pool_size: 1
     USAJob:
-        type: one-off
+        type: sec
+        sec: 30
+        pool_size: 10
         user_agent: rj_jnu@outlook.com
         auth_key: 2Gkkyrddz2Skk1czvO03iqRzUmPBqB6WCaTXUV1O/pc=
     GitHubJob:
         type: sec
-        sec: 10
+        sec: 30
         pool_size: 10
 #   ThirdJob:
+#        type: one-off
 #        type: cron
 #        cron: "19,39,59 * * * *"
 #        pool_size: 10

@@ -166,3 +166,62 @@ class RecruitingRecord(Domain):
     @time.setter
     def time(self, time):
         self._time = time
+
+
+class ScrapingLog(Domain):
+    def __init__(self):
+        super(ScrapingLog, self).__init__()
+        self._raw_data_id = None
+        self._url = None
+        self._keyword = None
+        self._ts = None
+        self._http_code = None
+        self._comment = None
+
+    @property
+    def raw_data_id(self):
+        return self._raw_data_id
+
+    @raw_data_id.setter
+    def raw_data_id(self, raw_data_id):
+        self._raw_data_id = raw_data_id
+
+    @property
+    def url(self):
+        return self._url
+
+    @url.setter
+    def url(self, url):
+        self._url = url
+
+    @property
+    def keyword(self):
+        return self._keyword
+
+    @keyword.setter
+    def keyword(self, keyword):
+        self._keyword = keyword
+
+    @property
+    def ts(self):
+        return self._ts
+
+    @ts.setter
+    def ts(self, ts):
+        self._ts = ts
+
+    @property
+    def http_code(self):
+        return self._http_code
+
+    @http_code.setter
+    def http_code(self, http_code):
+        self._http_code = http_code
+
+    @property
+    def comment(self):
+        return self._comment
+
+    @comment.setter
+    def comment(self, comment):
+        self._comment = comment

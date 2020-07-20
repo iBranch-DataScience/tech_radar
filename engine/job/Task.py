@@ -6,15 +6,16 @@ from engine.job.service_provider.USAJob import USAJobScrapingStrategy, USAJobReq
 
 
 class USAJobTask(Task):
-    def __init__(self):
+    def __init__(self, keyword):
         super(USAJobTask, self).__init__()
         Task.register(USAJobTask)
         self._client = Client(USAJobScrapingStrategy())
+        self._keyword = keyword
 
     def execute(self):
         self._logger.info('开始获取USAJob 的数据...')
         request = USAJobRequest()
-        request.keyword = 'python'
+        request.keyword = self._keyword
         request.location = 'sf'
         request.page_num = 1
         self._logger.info(f'设置查询关键词: {request._keyword}...')
@@ -26,15 +27,16 @@ class USAJobTask(Task):
 
 
 class GitHubJobTask(Task):
-    def __init__(self):
+    def __init__(self, keyword):
         super(GitHubJobTask, self).__init__()
         Task.register(GitHubJobTask)
         self._client = Client(GitHubJobScrapingStrategy())
+        self._keyword = keyword
 
     def execute(self):
         self._logger.info('开始获取GitHubJob 的数据...')
         request = GitHubJobRequest()
-        request.keyword = 'python'
+        request.keyword = self._keyword
         request.location = 'sf'
         request.page_num = 1
         self._logger.info(f'设置查询关键词: {request._keyword}...')

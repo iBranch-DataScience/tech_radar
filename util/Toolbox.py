@@ -1,4 +1,5 @@
 import hashlib
+import itertools
 import json
 import pathlib
 
@@ -38,6 +39,10 @@ class ParameterGenerator:
         combination_list.drop('dummy', axis=1, inplace=True)
         return combination_list
 
+    @staticmethod
+    def create_keyword_list(params: dict) -> list:
+        return list(itertools.chain.from_iterable(params.values()))
+
 
 @singleton
 class Keyword:
@@ -48,8 +53,13 @@ class Keyword:
             configs.load(config_file)
 
             params = {k: v.data.lower().split(',') for k, v in configs.items()}
+            self._keyword_list = ParameterGenerator.create_keyword_list(params)
+
             {k: v.append(' ') for k, v in params.items()}
             self._keyword_matrix = ParameterGenerator.create_combination_matrix(params)
+
+    def get_keyword_list(self) -> list:
+        return self._keyword_list
 
     def get_combination(self) -> pd.DataFrame:
         return self._keyword_matrix
