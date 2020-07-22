@@ -148,8 +148,8 @@ class USAJobDeserializable(Deserializable):
 
 
 class USAJobResponse(Response):
-    def __init__(self, response, records: pd.DataFrame, page_num: str):
-        super(USAJobResponse, self).__init__(response, records)
+    def __init__(self, response, records: pd.DataFrame, page_num: str, http_code: int):
+        super(USAJobResponse, self).__init__(response, records, http_code)
         Response.register(USAJobResponse)
         # total page numbers
         self._page_num = page_num
@@ -178,7 +178,7 @@ class USAJobScrapingStrategy(ScrapingStrategy, USAJobDeserializable):
                 self._logger.info("USAJob 访问异常. 返回值为空")
                 return None
             if not res.is_success():
-                self._logger.info("USAJob 访问异常. HTTP 状态码: %s" % res.status_code)
+                self._logger.info("USAJob 访问异常. HTTP 状态码: %s" % res.html_status_code)
                 return None
             self._logger.info("USAJob 访问成功")
 
@@ -187,7 +187,7 @@ class USAJobScrapingStrategy(ScrapingStrategy, USAJobDeserializable):
             # but can be defined in your request up to 500 per request.
             page_num = int(raw_json['SearchResult']['UserArea']['NumberOfPages'])
             records = self.from_json(raw_json)
-            return USAJobResponse(raw_json, records, page_num)
+            return USAJobResponse(raw_json, records, page_num, res.html_status_code)
         except Exception as e:
             self._logger.error(f"USAJob 请求异常: {e}")
             return None
