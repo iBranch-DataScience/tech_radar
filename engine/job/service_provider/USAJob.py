@@ -135,6 +135,24 @@ class USAJobDeserializable(Deserializable):
                                      + " Benefits:" + job_discriptions.Benefits.astype(str)
         jobs.loc[:, 'HowToApply'] = job_discriptions.HowToApply
 
+        '''
+                {'Name': 'Full-Time', 'Code': '1'} 
+                        -> 'Full-Time'
+        '''
+        jobs['JobCategory'] = jobs['JobCategory'].map(lambda x: x[0]['Name'])
+
+        '''
+        {'Name': 'Miscellaneous Administration And Program', 'Code': '0301'} 
+                -> 'Miscellaneous Administration And Program'
+        '''
+        jobs['PositionSchedule'] = jobs['PositionSchedule'].map(lambda x: x[0]['Name'])
+
+        # transform to string
+        jobs['PositionRemuneration'] = jobs['PositionRemuneration'].map(self._PositionRemuneration_cleaning)
+
+        # multiple locations transform from dict to data frame
+        jobs['PositionLocation'] = jobs['PositionLocation'].map(lambda x: pd.DataFrame(x))
+
         jobs = jobs.loc[:, USAJobDeserializable.features]
         jobs.columns = RecruitingRecord.features
         self._logger.info('Data Frame转换成功...')
@@ -145,6 +163,20 @@ class USAJobDeserializable(Deserializable):
         for key, value in row.to_dict().items():
             setattr(record, key, value)
         return record
+
+    def _PositionRemuneration_cleaning(x):
+        '''
+        {'MinimumRange': '102663.0',
+         'MaximumRange': '133465.0',
+         'RateIntervalCode': 'Per Year'}
+        :return:
+            '102663.0-133465.0 Per Year'
+        '''
+
+        min_salary = x[0]['MinimumRange']
+        max_salary = x[0]['MaximumRange']
+        interval = x[0]['RateIntervalCode']
+        return min_salary + '-' + max_salary + ' ' + interval
 
 
 class USAJobResponse(Response):
